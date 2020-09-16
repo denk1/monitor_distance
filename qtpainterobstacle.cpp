@@ -1,10 +1,15 @@
+#include <QStringLiteral>
 #include "qtpainterobstacle.h"
 #include "obstaclespace.h"
 
-QtPainterObstacle::QtPainterObstacle(QPainter* painter):
-    _painter(painter), _widgetHeight(0), _widgetWidth(0)
-{
+using namespace std;
 
+
+QtPainterObstacle::QtPainterObstacle(QPainter* painter):
+    _painter(painter), _widgetHeight(0), _widgetWidth(0),
+    acc( tag::rolling_window::window_size = 1500)
+{
+    _prev_time_point = chrono::system_clock::now();
 }
 
 void QtPainterObstacle::draw(QWidget *widget)
@@ -19,8 +24,12 @@ void QtPainterObstacle::draw(QWidget *widget)
         painter.setPen(QPen(Qt::white, 12, Qt::DashDotLine, Qt::RoundCap));
         if(controlledSpace.verifyX(obj.second.getCoord().x()) && controlledSpace.verifyZ(obj.second.getCoord().z())) {
             painter.drawPoint(getScreenX(obj.second.getCoord().x()), getScreenY(obj.second.getCoord().z()));
+            painter.drawText(getScreenX(obj.second.getCoord().x()) + SHIFT_TITILE,
+                             getScreenY(obj.second.getCoord().z()) + SHIFT_TITILE,
+                             QString::fromStdString(controlledSpace.getObjectName(obj.first)));
         }
     }
+    setFPS(painter);
 }
 
 int QtPainterObstacle::getScreenX(float x)
@@ -49,4 +58,20 @@ void QtPainterObstacle::drawGrid(QPainter &qPainter)
     }
     qPainter.setPen(QPen(QColor(0, 255, 0, 128), 1, Qt::DashDotLine, Qt::RoundCap));
     qPainter.drawLines(lines);
+}
+
+void QtPainterObstacle::setFPS(QPainter &painter)
+{
+    auto time_point_now = chrono::system_clock::now();
+    int duration =  std::chrono::duration_cast<std::chrono::microseconds>(time_point_now - _prev_time_point).count();
+    int fps = 1000000 / duration;
+    acc(double(fps));
+    QFont font = painter.font();
+    font.setPointSize(font.pointSize() * 2);
+    painter.setPen(QPen(Qt::blue, 125, Qt::DashDotLine, Qt::RoundCap));
+    painter.setFont(font);
+    fps = static_cast<int>(rolling_mean(acc));
+    QString strFps = QStringLiteral("%1 FPS").arg(fps);
+    painter.drawText(QPoint(15, 35), strFps);
+    _prev_time_point = time_point_now;
 }

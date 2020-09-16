@@ -1,4 +1,6 @@
 #include <iostream>
+#include <fstream>
+#include <boost/algorithm/string.hpp>
 #include <websocketpp/config/asio_no_tls_client.hpp>
 #include <websocketpp/client.hpp>
 #include <functional>
@@ -8,6 +10,8 @@
 #include "datasources.h"
 #include "obstaclespace.h"
 
+
+using namespace boost::algorithm;
 
 QJsonObject get_object_json_from_str(QString &inStr)
 {
@@ -44,12 +48,36 @@ void on_message(websocketpp::connection_hdl, client::message_ptr msg) {
 DataSources::DataSources() : runner(std::bind(&DataSources::do_session, this))
 {
     qDebug() << "DataSources ctor" << Qt::endl;
+    get_subject_list();
 }
 
 
 DataSources::~DataSources()
 {
     runner.detach();
+}
+
+std::string DataSources::getObjectName(int id)
+{
+    return mObjects[id];
+}
+
+void DataSources::get_subject_list()
+{
+    std::ifstream infile("list_subjects.txt");
+    std::string line;
+    typedef std::vector<std::string> splite_vector_type;
+
+    while(std::getline(infile, line)) {
+
+        splite_vector_type spliteVector;
+        split(spliteVector, line, is_any_of("."), token_compress_on);
+        if(!line.empty()) {
+            std::string nameObject = trim_left_copy(spliteVector[1]);
+            qDebug() << std::stoi(spliteVector[0]) << " " << QString::fromStdString(nameObject) << Qt::endl;
+            mObjects[std::stoi(spliteVector[0])] = nameObject;
+        }
+    }
 }
 
 void DataSources::do_session()

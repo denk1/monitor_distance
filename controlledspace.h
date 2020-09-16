@@ -10,6 +10,7 @@ public:
     ControlledSpace();
     bool verifyX(float x);
     bool verifyZ(float z);
+    std::string getObjectName(int id);
 
 private:
     DataSources _dataSources;

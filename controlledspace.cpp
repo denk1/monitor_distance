@@ -16,3 +16,8 @@ bool ControlledSpace::verifyZ(float z)
     bool r = nearLeft.z() < z && z > nearRight.z() && farLeft.z() > z && z < farRight.z();
     return r;
 }
+
+std::string ControlledSpace::getObjectName(int id)
+{
+    return _dataSources.getObjectName(id);
+}
