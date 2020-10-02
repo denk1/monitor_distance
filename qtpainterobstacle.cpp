@@ -21,12 +21,15 @@ void QtPainterObstacle::draw(QWidget *widget)
 
     drawGrid(painter);
     for(const auto& obj : containerObjects) {
-        painter.setPen(QPen(Qt::white, 12, Qt::DashDotLine, Qt::RoundCap));
+        if(obj.second.getVisability())
+            painter.setPen(QPen(Qt::white, 12, Qt::DashDotLine, Qt::RoundCap));
+        else
+            painter.setPen(QPen(Qt::red, 12, Qt::DashDotLine, Qt::RoundCap));
         if(controlledSpace.verifyX(obj.second.getCoord().x()) && controlledSpace.verifyZ(obj.second.getCoord().z())) {
             painter.drawPoint(getScreenX(obj.second.getCoord().x()), getScreenY(obj.second.getCoord().z()));
             painter.drawText(getScreenX(obj.second.getCoord().x()) + SHIFT_TITILE,
                              getScreenY(obj.second.getCoord().z()) + SHIFT_TITILE,
-                             QString::fromStdString(controlledSpace.getObjectName(obj.first)));
+                             QString::fromStdString(controlledSpace.getObjectName(obj.second.getClassOfObject())));
         }
     }
     setFPS(painter);

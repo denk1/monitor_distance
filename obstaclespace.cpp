@@ -21,11 +21,16 @@ void ObstacleSpace::setObstacles(const QJsonObject qJsonObjectsObstacles)
     mObstacles.clear();
     const QJsonArray jsonArray = qJsonObjectsObstacles["list_objects"].toArray();
     for(const auto& obj : jsonArray) {
-        int id = obj["id"].toInt();
-        float x = obj["x"].toDouble();
-        float y = obj["y"].toDouble();
-        float z = obj["z"].toDouble();
-        mObstacles[id] = Obstacle(QVector3D(x, y, z));
+        int id = obj["ID"].toInt();
+        int cl = obj["CL"].toInt();
+        float x = obj["X"].toDouble();
+        float y = obj["Y"].toDouble();
+        float z = obj["Z"].toDouble();
+        float height = obj["H"].toDouble();
+        float width = obj["W"].toDouble();
+        bool visible = obj["V"].toInt();
+
+        mObstacles[id] = Obstacle(cl, QVector3D(x, y, z), width, height, visible);
     }
     if(ptrWidget != nullptr)
         ptrWidget->update();

@@ -75,6 +75,8 @@ void DataSources::get_subject_list()
         if(!line.empty()) {
             std::string nameObject = trim_left_copy(spliteVector[1]);
             qDebug() << std::stoi(spliteVector[0]) << " " << QString::fromStdString(nameObject) << Qt::endl;
+            std::cout << "\x1b[2K";
+            std::cout << "\x1b[A";
             mObjects[std::stoi(spliteVector[0])] = nameObject;
         }
     }
@@ -84,6 +86,7 @@ void DataSources::do_session()
 {
     client c;
 
+    //std::string uri = "ws://79.164.82.177:8765";
     std::string uri = "ws://localhost:8765";
 
     try {
